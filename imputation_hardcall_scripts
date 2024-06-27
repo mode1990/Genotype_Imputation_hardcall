@@ -32,10 +32,51 @@ done
 
 
 
-cd plink_files_soft
-ls | grep ".bim" > merge_list.txt
-sed -i 's/.bim//g' merge_list.txt
-plink --merge-list merge_list.txt --make-bed --out IMPUTED.SOFTCALLS.Demo
+## convert each file to vcf
+for chr in {1..22}; do
+    ./plink --bfile chr${chr} --recode vcf --out chr${chr}_vcf
+done
+
+## bgzip and tabix index
+for i in {1..22}; do if [ -f "chr${i}.vcf" ]; then bgzip -c "chr${i}.vcf" > "chr${i}.vcf.gz"; echo "Compressed chr${i}.vcf to chr${i}.vcf.gz"; else echo "File chr${i}.vcf does not exist."; fi; done
+for i in {1..22}; do if [ -f "chr${i}.vcf.gz" ]; then tabix -p vcf "chr${i}.vcf.gz"; echo "Indexed chr${i}.vcf.gz"; else echo "File chr${i}.vcf.gz does not exist."; fi; done
+
+
+
+## Merge VCF files for each chromosome using bcftools
+bcftools merge \
+    chr1.vcf.gz \
+    chr2.vcf.gz \
+    chr3.vcf.gz \
+    chr4.vcf.gz \
+    chr5.vcf.gz \
+    chr6.vcf.gz \
+    chr7.vcf.gz \
+    chr8.vcf.gz \
+    chr9.vcf.gz \
+    chr10.vcf.gz \
+    chr11.vcf.gz \
+    chr12.vcf.gz \
+    chr13.vcf.gz \
+    chr14.vcf.gz \
+    chr15.vcf.gz \
+    chr16.vcf.gz \
+    chr17.vcf.gz \
+    chr18.vcf.gz \
+    chr19.vcf.gz \
+    chr20.vcf.gz \
+    chr21.vcf.gz \
+    chr22.vcf.gz \
+    -o merged_output.vcf
+
+
+## convert merged vcf to binary
+plink --vcf merged.vcf.gz --make-bed --out merged_dataset
+
+
+
+
+
 rm chr*.bim
 rm chr*.log
 rm chr*.fam
@@ -43,9 +84,12 @@ rm chr*.bed
 rm chr*.nosex
 cd ..
 
+ 
+ 
 
-# recompress .info file
-gzip *.info
+
+
+ 
 
 
 
