@@ -67,6 +67,7 @@ bcftools merge \
     chr20.vcf.gz \
     chr21.vcf.gz \
     chr22.vcf.gz \
+    -- force-samples \
     -o merged_output.vcf
 
 
